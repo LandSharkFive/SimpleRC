@@ -93,7 +93,7 @@ namespace RCOne
             }
         }
 
-        static byte[] GetHash(byte[] input)
+        private byte[] GetHash(byte[] input)
         {
             using (var sha = SHA256.Create())
             {
