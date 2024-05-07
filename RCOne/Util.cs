@@ -42,7 +42,6 @@ namespace RCOne
             Console.WriteLine(output);
         }
 
-
         private void GetSequence(byte[] a)
         {
             for (int i = 0; i < a.Length; i++)
@@ -51,21 +50,33 @@ namespace RCOne
             }
         }
 
+        private void Shuffle(byte[] a, int start)
+        {
+            int seed = start % 32957;
+            byte temp = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                seed = (seed * 32911 + 3) % 32957;
+                int k = seed % a.Length;
+                temp = a[i];
+                a[i] = a[k];
+                a[k] = temp;
+            }
+        }
+
         private byte[] GetState(byte[] hash)
         {
             int j = 0;
-            byte t = 0;
+            byte temp = 0;
             byte[] s = new byte[256];
-            for (int i = 0; i < s.Length; i++)
-            {
-                s[i] = (byte)i;
-            }
+            GetSequence(s);
+            Shuffle(s, 102);
             for (int i = 0; i < s.Length; i++)
             {
                 j = (j + s[i] + hash[i % hash.Length]) % 256;
-                t = s[i];
+                temp = s[i];
                 s[i] = s[j];
-                s[j] = t;
+                s[j] = temp;
             }
             return s;
         }
@@ -85,19 +96,19 @@ namespace RCOne
         }
 
 
-        public void Print(byte[] a)
-        {
-            for (int i = 0;i < a.Length;i++) 
-            {
-                Console.WriteLine(a[i]);
-            }
-        }
-
         private byte[] GetHash(byte[] input)
         {
             using (var sha = SHA256.Create())
             {
                 return sha.ComputeHash(input);
+            }
+        }
+
+        public void Print(byte[] a)
+        {
+            for (int i = 0; i < a.Length; i++)
+            {
+                Console.WriteLine(a[i]);
             }
         }
 
