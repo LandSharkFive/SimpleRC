@@ -1,6 +1,6 @@
-# Simple RC Encryption
+# Simple Byte Encryption
 
-This program is a simple implementation of the RC encryption algorithm.  The program encrypts and decrypts a paragraph.
+This program contains a simple byte encryption algorithm.  The application encrypts and decrypts a paragraph.
 
 ## Install and Build
 
@@ -8,7 +8,7 @@ The is a C# Console-Mode Project.  Open with  Visual Studio 2022 and above to co
 
 ## Description:
 
-A simple encryption and decryption program using the RC algorithm.  
+A simple byte encryption algorithm.  
 
 ## Warning
 
