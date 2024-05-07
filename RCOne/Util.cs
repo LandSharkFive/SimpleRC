@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 
 namespace RCOne
 {
     internal class Util
     {
-        private byte[] KeySeven = new byte[] { 60, 116, 204, 106, 21, 18, 128, 37, 5, 208, 166, 120, 107, 38, 116, 118 };
+        private byte[] KeySeven = new byte[] { 60, 116, 204, 106, 21, 18, 12, 123 };
 
         private string QuoteOne = "Our revels now are ended. These our actors, as I foretold you, were all spirits and are melted into air, into thin air. "
            + "And like the baseless fabric of this vision, The cloud-capped towers, the gorgeous palaces, The solemn temples, the great globe itself, "
@@ -18,19 +19,19 @@ namespace RCOne
             GetSequence(pt);
 
             // encrypt
-            byte[] s1 = GetState(KeySeven);
+            byte[] s1 = GetState(GetHash(KeySeven));
             byte[] out1 = EncryptSeven(pt, s1);
 
             // decrypt
             byte[] out2 = EncryptSeven(out1, s1);
             Console.WriteLine(pt.SequenceEqual(out2));
-            Console.WriteLine();
+            Print(out2);
         }
 
         public void TestTwo()
         {
             // encrypt
-            byte[] s1 = GetState(KeySeven);
+            byte[] s1 = GetState(GetHash(KeySeven));
             byte[] pt = Encoding.ASCII.GetBytes(QuoteOne);
             byte[] ct = EncryptSeven(pt, s1);
 
@@ -50,10 +51,10 @@ namespace RCOne
             }
         }
 
-        private byte[] GetState(byte[] key)
+        private byte[] GetState(byte[] hash)
         {
             int j = 0;
-            int t = 0;
+            byte t = 0;
             byte[] s = new byte[256];
             for (int i = 0; i < s.Length; i++)
             {
@@ -61,26 +62,24 @@ namespace RCOne
             }
             for (int i = 0; i < s.Length; i++)
             {
-                j = (j + s[i] + key[i % key.Length]) % 256;
+                j = (j + s[i] + hash[i % hash.Length]) % 256;
                 t = s[i];
                 s[i] = s[j];
-                s[j] = (byte)t;
+                s[j] = t;
             }
             return s;
         }
 
         private byte[] EncryptSeven(byte[] a, byte[] s)
         {
-            int i = 0;
-            int j = 0;
             int k = 0;
+            int seed = 1;
             byte[] b = new byte[a.Length];
-            for (int m = 0; m < a.Length; m++)
+            for (int i = 0; i < a.Length; i++)
             {
-                i = (i + 1) % s.Length;
-                j = (j + s[i]) % s.Length;
-                k = (s[i] + s[j]) % s.Length;
-                b[m] = Convert.ToByte((a[m] ^ s[k]) % 256);
+                seed = (seed * 32719 + 3) % 32749;
+                k = seed % 256;
+                b[i] = Convert.ToByte((a[i] ^ s[k]) % 256);
             }
             return b;
         }
@@ -93,6 +92,15 @@ namespace RCOne
                 Console.WriteLine(a[i]);
             }
         }
+
+        static byte[] GetHash(byte[] input)
+        {
+            using (var sha = SHA256.Create())
+            {
+                return sha.ComputeHash(input);
+            }
+        }
+
 
     }
 }
