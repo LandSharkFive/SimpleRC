@@ -6,7 +6,7 @@ This program contains a simple byte encryption algorithm.  The application encry
 
 The is a C# Console-Mode Project.  Open with  Visual Studio 2022 and above to compile. 
 
-## Description:
+## Description
 
 A simple byte encryption algorithm.  
 
