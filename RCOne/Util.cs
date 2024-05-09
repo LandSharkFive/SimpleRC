@@ -20,10 +20,10 @@ namespace RCOne
 
             // encrypt
             byte[] s1 = GetState(GetHash(KeySeven));
-            byte[] out1 = EncryptSeven(pt, s1);
+            byte[] out1 = EncryptSeven(pt, s1, 197);
 
             // decrypt
-            byte[] out2 = EncryptSeven(out1, s1);
+            byte[] out2 = EncryptSeven(out1, s1, 197);
             Console.WriteLine(pt.SequenceEqual(out2));
             Print(out2);
         }
@@ -33,10 +33,10 @@ namespace RCOne
             // encrypt
             byte[] s1 = GetState(GetHash(KeySeven));
             byte[] pt = Encoding.ASCII.GetBytes(QuoteOne);
-            byte[] ct = EncryptSeven(pt, s1);
+            byte[] ct = EncryptSeven(pt, s1, 313);
 
             // decrypt
-            byte[] temp1 = EncryptSeven(ct, s1);
+            byte[] temp1 = EncryptSeven(ct, s1, 313);
             string output = Encoding.ASCII.GetString(temp1);
             Console.WriteLine(QuoteOne.Equals(output));
             Console.WriteLine(output);
@@ -52,13 +52,35 @@ namespace RCOne
 
         private void Shuffle(byte[] a, int start)
         {
-            int seed = start % 32957;
-            byte temp = 0;
+            uint seed = (uint)start;
             for (int i = 0; i < a.Length; i++)
             {
-                seed = (seed * 32911 + 3) % 32957;
-                int k = seed % a.Length;
-                temp = a[i];
+                if ((seed & 1) == 0)
+                {
+                    seed ^= seed >> 2;
+                }
+                else
+                {
+                    seed ^= seed >> 3;
+                }
+                if ((seed & 1) == 0)
+                {
+                    seed ^= seed << 4;
+                }
+                else
+                {
+                    seed ^= seed << 5;  
+                }
+                if ((seed & 1) == 0)
+                {
+                    seed ^= seed >> 6;
+                }
+                else
+                {
+                    seed ^= seed >> 7;
+                }
+                int k = Math.Abs((int)seed % 256);
+                byte temp = a[i];
                 a[i] = a[k];
                 a[k] = temp;
             }
@@ -81,15 +103,38 @@ namespace RCOne
             return s;
         }
 
-        private byte[] EncryptSeven(byte[] a, byte[] s)
+        private byte[] EncryptSeven(byte[] a, byte[] s, int start)
         {
             int k = 0;
-            int seed = 1;
+            uint seed = (uint)start;
             byte[] b = new byte[a.Length];
             for (int i = 0; i < a.Length; i++)
             {
-                seed = (seed * 32719 + 3) % 32749;
-                k = seed % 256;
+                if ((seed & 1) == 0)
+                {
+                    seed ^= seed >> 6;
+                }
+                else
+                {
+                    seed ^= seed >> 7;
+                }
+                if ((seed & 1) == 0)
+                {
+                    seed ^= seed << 8;
+                }
+                else
+                {
+                    seed ^= seed << 9;
+                }
+                if ((seed & 1) == 0)
+                {
+                    seed ^= seed >> 12;
+                }
+                else
+                {
+                    seed ^= seed >> 13;
+                }
+                k = Math.Abs((int)seed % 256);
                 b[i] = Convert.ToByte((a[i] ^ s[k]) % 256);
             }
             return b;
