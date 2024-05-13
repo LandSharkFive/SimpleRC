@@ -19,11 +19,13 @@ namespace RCOne
             GetSequence(pt);
 
             // encrypt
-            byte[] s1 = GetState(GetHash(KeySeven));
-            byte[] out1 = EncryptSeven(pt, s1, 197);
+            int a = KeySeven[0] + KeySeven[1];
+            int b = KeySeven[2] + KeySeven[3];
+            byte[] s1 = GetState(GetHash(KeySeven), a);
+            byte[] out1 = EncryptSeven(pt, s1, b);
 
             // decrypt
-            byte[] out2 = EncryptSeven(out1, s1, 197);
+            byte[] out2 = EncryptSeven(out1, s1, b);
             Console.WriteLine(pt.SequenceEqual(out2));
             Print(out2);
         }
@@ -31,12 +33,14 @@ namespace RCOne
         public void TestTwo()
         {
             // encrypt
-            byte[] s1 = GetState(GetHash(KeySeven));
+            int a = KeySeven[0] + KeySeven[1];
+            int b = KeySeven[2] + KeySeven[3];
+            byte[] s1 = GetState(GetHash(KeySeven), a);
             byte[] pt = Encoding.ASCII.GetBytes(QuoteOne);
-            byte[] ct = EncryptSeven(pt, s1, 313);
+            byte[] ct = EncryptSeven(pt, s1, b);
 
             // decrypt
-            byte[] temp1 = EncryptSeven(ct, s1, 313);
+            byte[] temp1 = EncryptSeven(ct, s1, b);
             string output = Encoding.ASCII.GetString(temp1);
             Console.WriteLine(QuoteOne.Equals(output));
             Console.WriteLine(output);
@@ -86,17 +90,16 @@ namespace RCOne
             }
         }
 
-        private byte[] GetState(byte[] hash)
+        private byte[] GetState(byte[] hash, int start)
         {
             int j = 0;
-            byte temp = 0;
             byte[] s = new byte[256];
             GetSequence(s);
-            Shuffle(s, 102);
+            Shuffle(s, start);
             for (int i = 0; i < s.Length; i++)
             {
                 j = (j + s[i] + hash[i % hash.Length]) % 256;
-                temp = s[i];
+                byte temp = s[i];
                 s[i] = s[j];
                 s[j] = temp;
             }
