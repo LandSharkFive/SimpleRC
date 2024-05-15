@@ -14,13 +14,13 @@ namespace RCOne
 
         public void TestOne()
         {
-            // plain text
+            // setup
             byte[] pt = new byte[100];
             GetSequence(pt);
 
             // encrypt
-            int a = KeySeven[0] + KeySeven[1];
-            int b = KeySeven[2] + KeySeven[3];
+            int a = HashOne(KeySeven);
+            int b = HashTwo(KeySeven);
             byte[] s1 = GetState(GetHash(KeySeven), a);
             byte[] out1 = EncryptSeven(pt, s1, b);
 
@@ -33,8 +33,8 @@ namespace RCOne
         public void TestTwo()
         {
             // encrypt
-            int a = KeySeven[0] + KeySeven[1];
-            int b = KeySeven[2] + KeySeven[3];
+            int a = HashOne(KeySeven);
+            int b = HashTwo(KeySeven);
             byte[] s1 = GetState(GetHash(KeySeven), a);
             byte[] pt = Encoding.ASCII.GetBytes(QuoteOne);
             byte[] ct = EncryptSeven(pt, s1, b);
@@ -150,6 +150,28 @@ namespace RCOne
             {
                 return sha.ComputeHash(input);
             }
+        }
+
+        int HashOne(byte[] a)
+        {
+            uint hash = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                hash = hash << 1;
+                hash ^= (uint)a[i] * 13;
+            }
+            return Convert.ToInt32(hash % int.MaxValue);
+        }
+
+        int HashTwo(byte[] a)
+        {
+            uint hash = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                hash = hash << 1;
+                hash ^= (uint)a[i] * 17;
+            }
+            return Convert.ToInt32(hash % int.MaxValue);
         }
 
         public void Print(byte[] a)
