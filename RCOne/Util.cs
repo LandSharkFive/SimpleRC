@@ -157,8 +157,7 @@ namespace RCOne
             uint hash = 0;
             for (int i = 0; i < a.Length; i++)
             {
-                hash = hash << 1;
-                hash ^= (uint)a[i] * 13;
+                hash = (hash << 1) + (uint)a[i] * 13;
             }
             return Convert.ToInt32(hash % int.MaxValue);
         }
@@ -168,8 +167,7 @@ namespace RCOne
             uint hash = 0;
             for (int i = 0; i < a.Length; i++)
             {
-                hash = hash << 1;
-                hash ^= (uint)a[i] * 17;
+                hash = (hash << 1) + (uint)a[i] * 17;
             }
             return Convert.ToInt32(hash % int.MaxValue);
         }
