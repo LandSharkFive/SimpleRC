@@ -46,6 +46,10 @@ namespace RCOne
             Console.WriteLine(output);
         }
 
+        /// <summary>
+        /// Insert 0 to 255 in a byte array.
+        /// </summary>
+        /// <param name="a"></param>
         private void GetSequence(byte[] a)
         {
             for (int i = 0; i < a.Length; i++)
@@ -54,42 +58,35 @@ namespace RCOne
             }
         }
 
+        /// <summary>
+        /// A pseudo random number generator (PRG) to shuffle a byte array.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="start"></param>
         private void Shuffle(byte[] a, int start)
         {
-            uint seed = (uint)start;
+            // Fix 1: Ensure seed is never zero to avoid the XOR-zero trap
+            uint seed = (start == 0) ? 0xDEADBEEF : (uint)start;
+
             for (int i = 0; i < a.Length; i++)
             {
-                if ((seed & 1) == 0)
-                {
-                    seed ^= seed >> 2;
-                }
-                else
-                {
-                    seed ^= seed >> 3;
-                }
-                if ((seed & 1) == 0)
-                {
-                    seed ^= seed << 4;
-                }
-                else
-                {
-                    seed ^= seed << 5;  
-                }
-                if ((seed & 1) == 0)
-                {
-                    seed ^= seed >> 6;
-                }
-                else
-                {
-                    seed ^= seed >> 7;
-                }
-                int k = Math.Abs((int)seed % 256);
+                if ((seed & 1) == 0) seed ^= seed >> 2; else seed ^= seed >> 3;
+                if ((seed & 1) == 0) seed ^= seed << 4; else seed ^= seed << 5;
+                if ((seed & 1) == 0) seed ^= seed >> 6; else seed ^= seed >> 7;
+
+                // Fix 2: Modulo by array length to prevent IndexOutOfRange
+                // Fix 3: uint is always positive, so Math.Abs isn't needed
+                int k = (int)(seed % (uint)a.Length);
+
                 byte temp = a[i];
                 a[i] = a[k];
                 a[k] = temp;
             }
         }
 
+        /// <summary>
+        /// This is essentially the "state" of a Pseudo Random Number (PRG) Generator.
+        /// </summary>
         private byte[] GetState(byte[] hash, int start)
         {
             int j = 0;
@@ -106,6 +103,9 @@ namespace RCOne
             return s;
         }
 
+        /// <summary>
+        /// A Bit-Shifter and XOR machine.
+        /// </summary>
         private byte[] EncryptSeven(byte[] a, byte[] s, int start)
         {
             int k = 0;
@@ -143,7 +143,9 @@ namespace RCOne
             return b;
         }
 
-
+        /// <summary>
+        /// Secure Hash Authenticator.
+        /// </summary>
         private byte[] GetHash(byte[] input)
         {
             using (var sha = SHA256.Create())
@@ -152,6 +154,9 @@ namespace RCOne
             }
         }
 
+        /// <summary>
+        /// A Bit-Shifting, Multiplication and Adding machine. Notice the prime number.
+        /// </summary>
         int HashOne(byte[] a)
         {
             uint hash = 0;
@@ -162,6 +167,9 @@ namespace RCOne
             return Convert.ToInt32(hash % int.MaxValue);
         }
 
+        /// <summary>
+        /// A Bit-Shifting, Multiplication and Adding machine. Notice the prime number.
+        /// </summary>
         int HashTwo(byte[] a)
         {
             uint hash = 0;
